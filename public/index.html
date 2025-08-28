@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Documentación API REST</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; margin: 20px; background: #f9fafb; color: #111827; }
+    h1, h2, h3 { color: #1f2937; }
+    section { margin-bottom: 40px; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    pre { background: #f3f4f6; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Documentación API REST con autenticación mediante JWT, carga de imagenes y base de datos</h1>
+
+  <section>
+    <h2>1. Autenticación con JWT</h2>
+    <p>
+      Para acceder a las rutas protegidas, el cliente debe autenticarse con un <strong>usuario y contraseña</strong>.
+      Tu API debería exponer una ruta como <code>POST /auth/login</code> que devuelva un token JWT.
+    </p>
+    <p>
+      Ejemplo de respuesta esperada:
+    </p>
+    <pre>{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</pre>
+    <p>
+      Luego el cliente debe enviar el token en el header <code>Authorization</code> como:
+    </p>
+    <pre>Authorization: Bearer &lt;tu_token_jwt&gt;</pre>
+  </section>
+
+  <section>
+    <h2>2. Middlewares</h2>
+    <p>
+      Los middlewares se utilizan en Express para ejecutar lógica antes o después de las rutas.
+      Ejemplos comunes:
+    </p>
+    <ul>
+      <li>Validar que el token JWT sea válido.</li>
+      <li>Registrar logs de las peticiones.</li>
+      <li>Aplicar CORS o limitación de peticiones (rate limiting).</li>
+    </ul>
+    <p>
+      Ejemplo en Express:
+    </p>
+    <pre>app.use((req, res, next) =&gt; {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});</pre>
+  </section>
+
+  <section>
+    <h2>3. Carga de Imágenes</h2>
+    <p>
+      Para subir archivos se recomienda usar <code>multer</code> u otro middleware de carga.
+      Tu API podría exponer un endpoint como:
+    </p>
+    <pre>POST /upload</pre>
+    <p>
+      El cliente debe enviar un formulario con <code>multipart/form-data</code> en el campo <code>file</code>.
+      Tu backend puede normalizar el archivo para que siempre se maneje como un array:
+    </p>
+    <pre>if (!Array.isArray(req.files?.file)) {
+  req.body.files = [req.files?.file];
+}</pre>
+  </section>
+
+  <section>
+    <h2>4. Estructura Básica de Rutas</h2>
+    <ul>
+      <li><code>POST /auth/login</code> → devuelve JWT</li>
+      <li><code>GET /api/me</code> → ruta protegida, requiere token</li>
+      <li><code>POST /upload</code> → subir imágenes</li>
+      <li><code>GET /health</code> → ruta pública para verificar que el servidor está vivo</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5. Buenas Prácticas</h2>
+    <ul>
+      <li>Siempre usar HTTPS en producción.</li>
+      <li>Guardar los tokens en memoria o almacenamiento seguro (no en localStorage si es app web sensible).</li>
+      <li>Validar tipos de archivos e implementar límites de tamaño para uploads.</li>
+      <li>Separar middlewares por responsabilidad (auth, logs, errores, etc.).</li>
+    </ul>
+  </section>
+
+</body>
+</html>
