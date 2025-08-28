@@ -188,7 +188,7 @@ Incluye gestión de usuarios, productos y categorías, autenticación con JWT, s
 
    1. **Carga de imágenes simple (una sola imagen)** → `POST /api/upload/single/:type`
 
-   ```json
+   ```
    En el URL debemos sustituir ":type" por la clase a de la imagen. Las opciones son: "users", "products" y "categories".
 
    Subimos la imagen que queramos con el formato aceptado ("png", "jpeg", "jpg" y "gif")
@@ -206,19 +206,19 @@ Incluye gestión de usuarios, productos y categorías, autenticación con JWT, s
 
    2. **Carga de imágenes múltiple (varias imágenes)** → `POST /api/upload/multiple/:type`
 
-   ```json
+   ```
    Similar al anterior pero nos permite subir varios archivos.
    ```
 
    3. **Obtención de imágenes** → `GET /api/images/:type/:img`
 
-   ```json
+   ```
    En el URL debemos sustituir ":type" por la clase a de la imagen. Las opciones son: "users", "products" y "categories". También debemos sustituir ":img" por el ID que se generó cuando cargamos la imagen.
    ```
 
    **Respuesta:**
 
-   ```json
+   ```
    La propia imagen.
    ```
 
