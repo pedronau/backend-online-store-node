@@ -1,92 +1,302 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Documentación API REST</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🛍️ API REST - Backend de una tienda online — Documentación</title>
   <style>
-    body { font-family: sans-serif; line-height: 1.6; margin: 20px; background: #f9fafb; color: #111827; }
-    h1, h2, h3 { color: #1f2937; }
-    section { margin-bottom: 40px; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; }
-    code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
-    pre { background: #f3f4f6; padding: 12px; border-radius: 6px; overflow-x: auto; }
+    :root{
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --text: #0f172a;
+      --accent: #0ea5a4;
+      --mono-bg: #f3f4f6;
+      --border: #e6e9ee;
+    }
+    html,body{height:100%}
+    body{
+      margin:20px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    header{margin-bottom:18px}
+    h1{font-size:24px;margin:0 0 6px}
+    p.lead{margin:0;color:var(--muted)}
+    main{max-width:980px}
+    section{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:18px;
+      margin-bottom:16px;
+      box-shadow: 0 6px 18px rgba(15,23,42,0.04);
+    }
+    h2{font-size:18px;margin:0 0 8px;color:var(--text)}
+    ul{margin:8px 0 0 20px}
+    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+    code { background:var(--mono-bg); padding:2px 6px; border-radius:6px; font-size:13px; }
+    pre{
+      background:var(--mono-bg);
+      padding:12px;
+      border-radius:8px;
+      margin-top:10px;
+      overflow:auto;
+      border:1px solid var(--border);
+    }
+    .muted { color: var(--muted); font-size:14px; }
+    .cols{display:grid;grid-template-columns:1fr 320px;gap:14px}
+    .aside{min-width:220px}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(14,165,164,0.08);color:var(--accent);font-weight:600;font-size:13px;margin-left:8px}
+    .section-title{display:flex;align-items:center;gap:8px}
+    footer{font-size:13px;color:var(--muted);margin-top:8px}
+    @media (max-width:880px){ .cols{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
-  <h1>Documentación API REST con autenticación mediante JWT, carga de imagenes y base de datos</h1>
+  <main>
+    <header>
+      <h1>🛍️ API REST - Backend de una tienda online</h1>
+      <p class="lead">Backend de una tienda online, implementado como API REST en <strong>Node.js + Express</strong> con <strong>MongoDB</strong>. Gestión de usuarios, productos y categorías, autenticación JWT, subida de imágenes y organización mediante Clean Architecture + Patrón Adaptador.</p>
+    </header>
 
-  <section>
-    <h2>1. Autenticación con JWT</h2>
-    <p>
-      Para acceder a las rutas protegidas, el cliente debe autenticarse con un <strong>usuario y contraseña</strong>.
-      Tu API debería exponer una ruta como <code>POST /auth/login</code> que devuelva un token JWT.
-    </p>
-    <p>
-      Ejemplo de respuesta esperada:
-    </p>
-    <pre>{
+    <section>
+      <div class="section-title">
+        <h2>Características</h2>
+        <span class="badge">Resumen</span>
+      </div>
+      <ul>
+        <li>Creación de usuarios, productos y categorías.</li>
+        <li>Paginación en las peticiones <code>GET</code>.</li>
+        <li>Registro e inicio de sesión con autenticación mediante <strong>JWT</strong>.</li>
+        <li>Validación de usuarios mediante email (opcional — configurable con variables de entorno y una secret key).</li>
+        <li>Subida de archivos (guardados localmente).</li>
+        <li>Registro en base de datos y <em>seed</em> para poblar la BBDD automáticamente.</li>
+      </ul>
+    </section>
+
+    <section class="cols">
+      <div>
+        <h2>Endpoints de autenticación</h2>
+
+        <h3>1. Registro — <code>POST /api/auth/register</code></h3>
+        <p class="muted">Body ejemplo:</p>
+        <pre>{
+  "name": "Pedro Peñas",
+  "email": "pedropefer34@gmail.com",
+  "password": "123456"
+}</pre>
+
+        <p class="muted">Respuesta ejemplo:</p>
+        <pre>{
+  "user": {
+    "id": "68b042940097ed21ec39d2c3",
+    "name": "Pedro Peñas",
+    "email": "pedropefer34@gmail.com",
+    "emailValidated": false,
+    "role": ["USER_ROLE"]
+  },
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }</pre>
-    <p>
-      Luego el cliente debe enviar el token en el header <code>Authorization</code> como:
-    </p>
-    <pre>Authorization: Bearer &lt;tu_token_jwt&gt;</pre>
-  </section>
 
-  <section>
-    <h2>2. Middlewares</h2>
-    <p>
-      Los middlewares se utilizan en Express para ejecutar lógica antes o después de las rutas.
-      Ejemplos comunes:
-    </p>
-    <ul>
-      <li>Validar que el token JWT sea válido.</li>
-      <li>Registrar logs de las peticiones.</li>
-      <li>Aplicar CORS o limitación de peticiones (rate limiting).</li>
-    </ul>
-    <p>
-      Ejemplo en Express:
-    </p>
-    <pre>app.use((req, res, next) =&gt; {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});</pre>
-  </section>
+        <h3>2. Login — <code>POST /api/auth/login</code></h3>
+        <p class="muted">Body ejemplo:</p>
+        <pre>{ "email": "pedropefer34@gmail.com", "password": "123456" }</pre>
 
-  <section>
-    <h2>3. Carga de Imágenes</h2>
-    <p>
-      Para subir archivos se recomienda usar <code>multer</code> u otro middleware de carga.
-      Tu API podría exponer un endpoint como:
-    </p>
-    <pre>POST /upload</pre>
-    <p>
-      El cliente debe enviar un formulario con <code>multipart/form-data</code> en el campo <code>file</code>.
-      Tu backend puede normalizar el archivo para que siempre se maneje como un array:
-    </p>
-    <pre>if (!Array.isArray(req.files?.file)) {
-  req.body.files = [req.files?.file];
+        <p class="muted">Respuesta ejemplo (mismo formato que registro):</p>
+        <pre>{
+  "user": { ... },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }</pre>
-  </section>
 
-  <section>
-    <h2>4. Estructura Básica de Rutas</h2>
-    <ul>
-      <li><code>POST /auth/login</code> → devuelve JWT</li>
-      <li><code>GET /api/me</code> → ruta protegida, requiere token</li>
-      <li><code>POST /upload</code> → subir imágenes</li>
-      <li><code>GET /health</code> → ruta pública para verificar que el servidor está vivo</li>
-    </ul>
-  </section>
+        <h3>3. Uso del token</h3>
+        <p class="muted">Enviar el JWT en el header <code>Authorization</code> como:</p>
+        <pre>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</pre>
 
-  <section>
-    <h2>5. Buenas Prácticas</h2>
-    <ul>
-      <li>Siempre usar HTTPS en producción.</li>
-      <li>Guardar los tokens en memoria o almacenamiento seguro (no en localStorage si es app web sensible).</li>
-      <li>Validar tipos de archivos e implementar límites de tamaño para uploads.</li>
-      <li>Separar middlewares por responsabilidad (auth, logs, errores, etc.).</li>
-    </ul>
-  </section>
+        <p class="muted">Este token será necesario para crear productos y categorías. Las rutas <code>GET</code> públicas no requieren autenticación.</p>
 
+        <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
+
+        <h2>Endpoints de productos y categorías</h2>
+
+        <h3>1. Creación de categorías — <code>POST /api/categories</code></h3>
+        <p class="muted">Body ejemplo:</p>
+        <pre>{ "name": "Categoría test", "available": "true" }</pre>
+
+        <p class="muted">Sin token:</p>
+        <pre>{ "error": "No token provided" }</pre>
+
+        <p class="muted">Con token válido — respuesta ejemplo:</p>
+        <pre>{
+  "id": "68b045560097ed21ec39d2ca",
+  "name": "Categoría test",
+  "available": true
+}</pre>
+
+        <h3>2. Obtención de categorías — <code>GET /api/categories?page=1&amp;limit=2</code></h3>
+        <p class="muted">Respuesta (paginada):</p>
+        <pre>{
+  "page": 1,
+  "limit": 2,
+  "total": 23,
+  "next": "api/categories?page=2$limit=2",
+  "prev": null,
+  "categories": [
+    {
+      "id": "68b041bdc0a8edc42e3dbf0d",
+      "name": "Driven",
+      "available": false
+    },
+    {
+      "id": "68b041bdc0a8edc42e3dbf0e",
+      "name": "Till",
+      "available": false
+    }
+  ]
+}</pre>
+
+        <h3>3. Creación de productos — <code>POST /api/products</code></h3>
+        <p class="muted">Body ejemplo:</p>
+        <pre>{
+  "name": "Producto test",
+  "category": "68b041bdc0a8edc42e3dbf0d"
+}</pre>
+        <p class="muted">Nota: la <code>category</code> debe ser un ID válido de MongoDB para enlazarlos.</p>
+
+        <p class="muted">Sin token:</p>
+        <pre>{ "error": "No token provided" }</pre>
+
+        <p class="muted">Con token válido — respuesta ejemplo:</p>
+        <pre>{
+  "name": "Producto test",
+  "available": false,
+  "price": 0,
+  "user": "68b042940097ed21ec39d2c3",
+  "category": "68b041bdc0a8edc42e3dbf0d",
+  "id": "68b0481d0097ed21ec39d2f5"
+}</pre>
+
+        <p class="muted">Con autenticación, se añade el ID del usuario autenticado para saber quién creó el producto.</p>
+
+        <h3>4. Obtención de productos — <code>GET /api/products?limit=1&amp;page=1</code></h3>
+        <p class="muted">Respuesta (paginada):</p>
+        <pre>{
+  "page": 1,
+  "limit": 1,
+  "total": 23,
+  "next": "api/categories?page=2$limit=1",
+  "prev": null,
+  "products": [
+    {
+      "name": "Than",
+      "available": true,
+      "price": 75.0369,
+      "user": {
+        "name": "Test 2",
+        "email": "test2@google.com",
+        "emailValidated": false,
+        "role": ["USER_ROLE"],
+        "id": "68b041bdc0a8edc42e3dbf07"
+      },
+      "category": {
+        "name": "kitchen",
+        "id": "68b041bdc0a8edc42e3dbf1f"
+      },
+      "id": "68b041bdc0a8edc42e3dbf26"
+    }
+  ]
+}</pre>
+
+      </div>
+
+      <aside class="aside">
+        <h3>Nota rápida</h3>
+        <p class="muted">Las rutas de lectura (<code>GET</code>) suelen ser públicas; las de creación/actualización/eliminación requieren autenticación.</p>
+        <h3 style="margin-top:12px">Paginación</h3>
+        <p class="muted">Se usan parámetros <code>page</code> y <code>limit</code> en la query-string para controlar la paginación.</p>
+      </aside>
+    </section>
+
+    <section>
+      <h2>Endpoints de carga de imágenes</h2>
+
+      <h3>1. Carga simple (una sola imagen) — <code>POST /api/upload/single/:type</code></h3>
+      <p class="muted">Reemplazar <code>:type</code> por la clase de la imagen: <code>users</code>, <code>products</code> o <code>categories</code>.</p>
+      <p class="muted">Permitir formatos: <code>png</code>, <code>jpeg</code>, <code>jpg</code>, <code>gif</code>.</p>
+
+      <p class="muted">Respuesta ejemplo:</p>
+      <pre>{
+  "fileName": "0029b869-a5ac-4d5a-8154-c8e6a0d2c182.png"
+}</pre>
+      <p class="muted">La imagen se guarda en la carpeta <code>uploads</code> del proyecto, dentro del subdirectorio indicado por <code>:type</code>.</p>
+
+      <h3>2. Carga múltiple (varias imágenes) — <code>POST /api/upload/multiple/:type</code></h3>
+      <p class="muted">Funciona de forma similar al anterior pero permite varios archivos simultáneos.</p>
+
+      <h3>3. Obtener imagen — <code>GET /api/images/:type/:img</code></h3>
+      <p class="muted">Reemplazar <code>:type</code> por <code>users</code> | <code>products</code> | <code>categories</code> y <code>:img</code> por el nombre o ID del archivo almacenado.</p>
+      <p class="muted">La respuesta es el propio recurso de la imagen (binary/image).</p>
+    </section>
+
+    <section>
+      <h2>Tecnologías</h2>
+      <ul>
+        <li><strong>Node.js + Express</strong> (API REST)</li>
+        <li><strong>JWT</strong> (autenticación)</li>
+        <li><strong>MongoDB</strong> (base de datos)</li>
+        <li><strong>Mongoose</strong> (ODM)</li>
+        <li><strong>Bcrypt</strong> (hash de contraseñas)</li>
+        <li><strong>Dotenv</strong> (variables de entorno)</li>
+        <li><strong>Uuid</strong> (generación de IDs para archivos)</li>
+        <li><strong>Nodemailer</strong> (envío de correos — validación de email)</li>
+        <li><strong>Express-fileupload</strong> (subida de archivos)</li>
+        <li><strong>Clean Architecture</strong> + <strong>Patrón Adaptador</strong></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Instalación</h2>
+
+      <p class="muted"><strong>Paso a paso:</strong></p>
+
+      <pre>
+# Clonar repositorio
+Clonar '.env.template' a '.env' y configurar las variables de entorno
+
+# Instalar dependencias
+Ejecutar el comando 'npm install'
+
+# Base de datos
+Configurar el 'docker-compose.yml' y ejecutar 'docker compose up -d' para levantar los servicios deseados.
+
+# Llenar base de datos
+Llenar la base de datos con los datos de prueba ejecutando 'npm run seed'
+
+# Levantar el proyecto
+Ejecutar 'npm run dev' para levantar el proyecto en modo desarrollo
+      </pre>
+
+      <p class="muted">Asegúrate de configurar correctamente en <code>.env</code> las variables de conexión a MongoDB, la <code>SECRET_KEY</code> para JWT y, si usas validación por email, los credenciales SMTP para <code>Nodemailer</code>.</p>
+    </section>
+
+    <section>
+      <h2>Consejos / Buenas prácticas</h2>
+      <ul>
+        <li>Usar HTTPS en producción.</li>
+        <li>No exponer <code>.env</code> ni secrets en el repositorio.</li>
+        <li>Validar y sanear datos de entrada (evitar inyecciones y uploads peligrosos).</li>
+        <li>Limitar tamaño y tipos de archivos aceptados para uploads.</li>
+        <li>Separar responsabilidades siguiendo Clean Architecture (domain, application, infrastructure, interfaces).</li>
+        <li>Registrar logs y manejar errores centralizados con un middleware de error.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <div>Licencia: MIT</div>
+      <div style="margin-top:6px" class="muted">Este documento reproduce la estructura y contenido del README que has proporcionado para usarlo como documentación HTML estática.</div>
+    </footer>
+  </main>
 </body>
 </html>
